@@ -1,0 +1,35 @@
+{
+    "description": "LCC size after removing all edges from a cut, for 1000 cuts as a function of the k parameter. Other parameters are fixed to epsilon=0.03, mode=2. Content contains the minimum, maximum, average and median LCC size among the 1000 ones for a given k.",
+    "content": {
+        "3": {
+            "min": 0.3309066200737721,
+            "max": 0.345563968161522,
+            "average": 0.3422751892836344,
+            "median": 0.3429431178411959
+        },
+        "4": {
+            "min": 0.25072801397786837,
+            "max": 0.2590759075907591,
+            "average": 0.2576231799650552,
+            "median": 0.25820229081731705
+        },
+        "5": {
+            "min": 0.19937876140555233,
+            "max": 0.20733838089691323,
+            "average": 0.20630304795185472,
+            "median": 0.20675596971461851
+        },
+        "6": {
+            "min": 0.16676373519704912,
+            "max": 0.17268491555037857,
+            "average": 0.17171170646476422,
+            "median": 0.17210250436808386
+        },
+        "2": {
+            "min": 0.49990293146961756,
+            "max": 0.5183459522422831,
+            "average": 0.5113978839060385,
+            "median": 0.5123277033585711
+        }
+    }
+}

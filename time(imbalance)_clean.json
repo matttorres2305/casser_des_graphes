@@ -1,0 +1,22 @@
+{
+    "description": "Duration time of making 1000 cuts as a function of the imbalance parameter. Other parameters are fixed to k=2, mode=2. Content is formatted as imbalance : time (s)",
+    "content": {
+        "0.01": 254.6,
+        "0.02": 284.6,
+        "0.03": 325.9,
+        "0.04": 381.8,
+        "0.05": 424.8,
+        "0.06": 458.8,
+        "0.07": 464.3,
+        "0.08": 503.0,
+        "0.09": 501.1,
+        "0.1": 530.4,
+        "0.13": 281.4,
+        "0.16": 278.7,
+        "0.19": 268.0,
+        "0.22": 270.3,
+        "0.25": 306.0,
+        "0.28": 317.0,
+        "0.3": 332.5
+    }
+}

@@ -1,0 +1,35 @@
+{
+    "description": "Cut cost of 1000 cuts as a function of the k parameter. Other parameters are fixed to epsilon=0.03, mode=2. Content contains the minimum, maximum, average and median cost among the 1000 ones for a given k.",
+    "content": {
+        "3": {
+            "min": 164,
+            "max": 229,
+            "average": 182.451,
+            "median": 190.0
+        },
+        "4": {
+            "min": 242,
+            "max": 313,
+            "average": 266.382,
+            "median": 267.0
+        },
+        "5": {
+            "min": 301,
+            "max": 391,
+            "average": 327.451,
+            "median": 326.0
+        },
+        "6": {
+            "min": 363,
+            "max": 453,
+            "average": 387.193,
+            "median": 387.0
+        },
+        "2": {
+            "min": 112,
+            "max": 147,
+            "average": 118.614,
+            "median": 115.0
+        }
+    }
+}

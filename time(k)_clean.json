@@ -1,0 +1,10 @@
+{
+    "description": "Duration time of making 1000 cuts as a function of the k parameter. Other parameters are fixed to epsilon=0.03, mode=2. Content is formatted as k : time (s)",
+    "content": {
+        "3": 450.7,
+        "4": 616.8,
+        "5": 698.9,
+        "6": 804.7,
+        "2": 325.9
+    }
+}

@@ -1,0 +1,110 @@
+{
+    "description": "1000 cuts as a function of the k parameter. Other parameters are fixed to imbalance=0.03, mode=2. Content contains costs (min, max, average and median), LCC metric values (min, max, average and median) and cut times for 1000 cuts (in s). '22' and '23' keys mean successive cuts with k=2 then k=2 or 3 respectively.",
+    "content": {
+        "2": {
+            "time": 325.9,
+            "cost": {
+                "min": 112,
+                "max": 147,
+                "average": 118.614,
+                "median": 115.0
+            },
+            "LCC metric": {
+                "min": 0.49990293146961756,
+                "max": 0.5183459522422831,
+                "average": 0.5113978839060385,
+                "median": 0.5123277033585711
+            }
+        },
+        "3": {
+            "time": 450.7,
+            "cost": {
+                "min": 164,
+                "max": 229,
+                "average": 182.451,
+                "median": 190.0
+            },
+            "LCC metric": {
+                "min": 0.3309066200737721,
+                "max": 0.345563968161522,
+                "average": 0.3422751892836344,
+                "median": 0.3429431178411959
+            }
+        },
+        "4": {
+            "time": 616.8,
+            "cost": {
+                "min": 242,
+                "max": 313,
+                "average": 266.382,
+                "median": 267.0
+            },
+            "LCC metric": {
+                "min": 0.25072801397786837,
+                "max": 0.2590759075907591,
+                "average": 0.2576231799650552,
+                "median": 0.25820229081731705
+            }
+        },
+        "5": {
+            "time": 698.9,
+            "cost": {
+                "min": 301,
+                "max": 391,
+                "average": 327.451,
+                "median": 326.0
+            },
+            "LCC metric": {
+                "min": 0.19937876140555233,
+                "max": 0.20733838089691323,
+                "average": 0.20630304795185472,
+                "median": 0.20675596971461851
+            }
+        },
+        "6": {
+            "time": 804.7,
+            "cost": {
+                "min": 363,
+                "max": 453,
+                "average": 387.193,
+                "median": 387.0
+            },
+            "LCC metric": {
+                "min": 0.16676373519704912,
+                "max": 0.17268491555037857,
+                "average": 0.17171170646476422,
+                "median": 0.17210250436808386
+            }
+        },
+        "22": {
+            "time": 876.9743735702037,
+            "cost": {
+                "min": 243,
+                "max": 326,
+                "average": 276.288,
+                "median": 277.0
+            },
+            "LCC metric": {
+                "min": 0.25,
+                "max": 0.2650404936367142,
+                "average": 0.2592328384111074,
+                "median": 0.26002699575780946
+            }
+        },
+        "23": {
+            "time": 984.5193956303597,
+            "cost": {
+                "min": 362,
+                "max": 465,
+                "average": 393.298,
+                "median": 391.0
+            },
+            "LCC metric": {
+                "min": 0.16708445815657538,
+                "max": 0.17662938681064405,
+                "average": 0.17261444273042792,
+                "median": 0.17277284998071732
+            }
+        }
+    }
+}

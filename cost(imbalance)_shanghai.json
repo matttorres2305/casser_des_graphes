@@ -1,0 +1,71 @@
+{
+    "description": "Cut cost of 1000 cuts as a function of the imbalance parameter. Other parameters are fixed to k=2, mode=2. Content contains the minimum, maximum, average and median cost among the 1000 ones for a given imbalance value.",
+    "content": {
+        "0.01": {
+            "min": 227,
+            "max": 414,
+            "average": 288.664,
+            "median": 291.0
+        },
+        "0.05": {
+            "min": 211,
+            "max": 355,
+            "average": 256.697,
+            "median": 264.0
+        },
+        "0.1": {
+            "min": 205,
+            "max": 345,
+            "average": 238.384,
+            "median": 242.0
+        },
+        "0.15": {
+            "min": 205,
+            "max": 334,
+            "average": 230.923,
+            "median": 236.0
+        },
+        "0.18": {
+            "min": 205,
+            "max": 337,
+            "average": 223.89,
+            "median": 223.0
+        },
+        "0.2": {
+            "min": 205,
+            "max": 359,
+            "average": 215.718,
+            "median": 207.0
+        },
+        "0.21": {
+            "min": 205,
+            "max": 340,
+            "average": 214.416,
+            "median": 207.0
+        },
+        "0.22": {
+            "min": 205,
+            "max": 345,
+            "average": 223.062,
+            "median": 223.0
+        },
+        "0.23": {
+            "min": 205,
+            "max": 328,
+            "average": 229.82,
+            "median": 232.0
+        },
+        "0.25": {
+            "min": 205,
+            "max": 329,
+            "average": 226.656,
+            "median": 226.0
+        },
+        "0.3": {
+            "min": 205,
+            "max": 332,
+            "average": 222.852,
+            "median": 224.0
+        }
+    }
+}

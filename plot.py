@@ -16,6 +16,32 @@ from utils import *
 if __name__ == "__main__":
     pass
 
+    # # Plot of classical attacks
+    # deg_dict = read_json(path("attack_degree.json"))["content"]["paris"]
+    # bet_dict = read_json(path("attack_betweenness.json"))["content"]["paris"]
+    # plt.figure()
+    # plt.plot(bet_dict["static"]["cost"], bet_dict["static"]["LCC metric"], label=f'static-BCA')
+    # plt.plot(deg_dict["static"]["cost"], deg_dict["static"]["LCC metric"], label=f'static-DA')
+    # plt.plot(bet_dict["dynamic"]["cost"], bet_dict["dynamic"]["LCC metric"], label=f'dynamic-BCA')
+    # plt.plot(deg_dict["dynamic"]["cost"], deg_dict["dynamic"]["LCC metric"], label=f'dynamic-DA')
+    # plt.xlabel('cost')
+    # plt.ylabel('LCC metric')
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.savefig(path(f"attack_classicals_LCC.png"), dpi = 300)
+    # plt.close()
+    # plt.figure()
+    # plt.plot(bet_dict["static"]["cost"][:151], bet_dict["static"]["efficiency"], label=f'static-BCA')
+    # plt.plot(deg_dict["static"]["cost"][:151], deg_dict["static"]["efficiency"], label=f'static-DA')
+    # plt.plot(bet_dict["dynamic"]["cost"][:151], bet_dict["dynamic"]["efficiency"], label=f'dynamic-BCA')
+    # plt.plot(deg_dict["dynamic"]["cost"][:151], deg_dict["dynamic"]["efficiency"], label=f'dynamic-DA')
+    # plt.xlabel('cost')
+    # plt.ylabel('efficiency')
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.savefig(path(f"attack_classicals_efficiency.png"), dpi = 300)
+    # plt.close()
+
     # # Plot of CAs
     # city = "paris"
     # k = 2
@@ -39,20 +65,21 @@ if __name__ == "__main__":
     # # Plot of iterated CAs
     # city = "paris"
     # k = 2
-    # max_displayed_cost = 250
+    # max_displayed_cost = 500
     # ca_dict = read_json(path("attack_ca.json"))["content"][city]
-    # bet_dict = read_json(path("attack_betweenness.json"))["content"]["dynamic"]
+    # bet_dict = read_json(path("attack_betweenness.json"))["content"][city]["dynamic"]
     # plt.figure()
     # plt.plot(bet_dict["cost"][:151], bet_dict["efficiency"], label=f'BCA')
     # for imb in [0.03, 0.1]:
-    #     plt.plot(ca_dict["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["efficiency"], label=fr'random2-CA: $\epsilon={imb}$')
+    #     if imb == 0.03:
+    #         plt.plot(ca_dict["dynamic"]["random3"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["dynamic"]["random3"][f"k={k}, imbalance={imb}"]["efficiency"], label=fr'random3-CA: $\epsilon={imb}$')
     #     plt.plot(ca_dict["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["efficiency"], label=fr'BC2-CA: $\epsilon={imb}$')
     # plt.xlabel('cost')
     # plt.ylabel('efficiency')
     # plt.xlim(-10, max_displayed_cost)
     # plt.legend()
     # plt.tight_layout()
-    # plt.savefig(path(f"attack_ca_it_bestcut1000_efficiency.png"), dpi = 300)
+    # plt.savefig(path(f"attack_ca_it_efficiency.png"), dpi = 300)
     # plt.close()
 
     # # Plot of CFAs
@@ -151,38 +178,38 @@ if __name__ == "__main__":
     # plt.savefig(path(f"attack_cfa_dyn_LCC.png"), dpi = 300)
     # plt.close()
 
-    # Plot of CCFAs
-    city = "paris"
-    k = 2
-    imb = 0.1
-    l = 25000
-    max_displayed_costs = [350, 1500] # eff, LCC
-    cfa_dict = read_json(path("attack_cfa.json"))["content"][city]["static"]
-    bet_dict = read_json(path("attack_betweenness.json"))["content"]["dynamic"]
-    ca_dict = read_json(path("attack_ca.json"))["content"][city]["static"]
-    ccfa_dict = read_json(path("attack_ccfa.json"))["content"] # Old format without the city key
-    cluster_list = read_file(path(f"clusters_birch_md{l}_clean{imb}")) # 'C' is only needed for imb = 0.03
-    plt.figure()
-    plt.plot(bet_dict["cost"][:151], bet_dict["efficiency"], label=f'BCA')
-    plt.plot(ca_dict["BC"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["BC"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'BC-CA')
-    plt.plot(cfa_dict[f"k={k}, imbalance={imb}"]["cost"][:151], cfa_dict[f"k={k}, imbalance={imb}"]["efficiency"], label=f'CFA')
-    for i in range(5):
-        plt.plot(ccfa_dict[f"{imb}"][f"{l}"][f"{i}"]["cost"][:151], ccfa_dict[f"{imb}"][f"{l}"][f"{i}"]["efficiency"], label=rf"CCFA: $f_{i}={len(cluster_list[i])/1000}$", alpha=0.7)
-    plt.xlabel('cost')
-    plt.ylabel('efficiency')
-    plt.legend()
-    plt.xlim(-10, max_displayed_costs[0])
-    plt.tight_layout()
-    plt.savefig(path(f"attack_ccfa_imb{imb}_l{l}_efficiency.png"), dpi = 300)
-    plt.figure()
-    plt.plot(bet_dict["cost"], bet_dict["LCC metric"], label=f'BCA')
-    plt.plot(cfa_dict[f"k={k}, imbalance={imb}"]["cost"], cfa_dict[f"k={k}, imbalance={imb}"]["LCC metric"], label=f'CFA')
-    for i in range(5):
-        plt.plot(ccfa_dict[f"{imb}"][f"{l}"][f"{i}"]["cost"], ccfa_dict[f"{imb}"][f"{l}"][f"{i}"]["LCC metric"], label=rf"CCFA: $f_{i}={len(cluster_list[i])/1000}$", alpha=0.7)
-    plt.xlabel('cost')
-    plt.ylabel('LCC metric')
-    plt.legend()
-    plt.xlim(-10, min(max_displayed_costs[1], cfa_dict[f"k={k}, imbalance={imb}"]["cost"][-1]))
-    plt.tight_layout()
-    plt.savefig(path(f"attack_ccfa_imb{imb}_l{l}_LCC.png"), dpi = 300)
-    plt.close()
+    # # Plot of CCFAs
+    # city = "paris"
+    # k = 2
+    # imb = 0.1
+    # l = 25000
+    # max_displayed_costs = [350, 1500] # eff, LCC
+    # cfa_dict = read_json(path("attack_cfa.json"))["content"][city]["static"]
+    # bet_dict = read_json(path("attack_betweenness.json"))["content"]["dynamic"]
+    # ca_dict = read_json(path("attack_ca.json"))["content"][city]["static"]
+    # ccfa_dict = read_json(path("attack_ccfa.json"))["content"] # Old format without the city key
+    # cluster_list = read_file(path(f"clusters_birch_md{l}_clean{imb}")) # 'C' is only needed for imb = 0.03
+    # plt.figure()
+    # plt.plot(bet_dict["cost"][:151], bet_dict["efficiency"], label=f'BCA')
+    # plt.plot(ca_dict["BC"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["BC"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'BC-CA')
+    # plt.plot(cfa_dict[f"k={k}, imbalance={imb}"]["cost"][:151], cfa_dict[f"k={k}, imbalance={imb}"]["efficiency"], label=f'CFA')
+    # for i in range(5):
+    #     plt.plot(ccfa_dict[f"{imb}"][f"{l}"][f"{i}"]["cost"][:151], ccfa_dict[f"{imb}"][f"{l}"][f"{i}"]["efficiency"], label=rf"CCFA: $f_{i}={len(cluster_list[i])/1000}$", alpha=0.7)
+    # plt.xlabel('cost')
+    # plt.ylabel('efficiency')
+    # plt.legend()
+    # plt.xlim(-10, max_displayed_costs[0])
+    # plt.tight_layout()
+    # plt.savefig(path(f"attack_ccfa_imb{imb}_l{l}_efficiency.png"), dpi = 300)
+    # plt.figure()
+    # plt.plot(bet_dict["cost"], bet_dict["LCC metric"], label=f'BCA')
+    # plt.plot(cfa_dict[f"k={k}, imbalance={imb}"]["cost"], cfa_dict[f"k={k}, imbalance={imb}"]["LCC metric"], label=f'CFA')
+    # for i in range(5):
+    #     plt.plot(ccfa_dict[f"{imb}"][f"{l}"][f"{i}"]["cost"], ccfa_dict[f"{imb}"][f"{l}"][f"{i}"]["LCC metric"], label=rf"CCFA: $f_{i}={len(cluster_list[i])/1000}$", alpha=0.7)
+    # plt.xlabel('cost')
+    # plt.ylabel('LCC metric')
+    # plt.legend()
+    # plt.xlim(-10, min(max_displayed_costs[1], cfa_dict[f"k={k}, imbalance={imb}"]["cost"][-1]))
+    # plt.tight_layout()
+    # plt.savefig(path(f"attack_ccfa_imb{imb}_l{l}_LCC.png"), dpi = 300)
+    # plt.close()

@@ -16,6 +16,15 @@ from graph_model import parse_graph_to_kahip
 from bridgeness import edge_bridgeness_centrality
 from cut import make_cuts
 
+"""Returns the sorted list of edges according to the degree of the connected nodes."""
+def order_degree(edge_list:list, graph, limit:int=None):
+    if not limit:
+        limit = len(edge_list)
+    def f(edge):
+        return graph.degree[edge[0]] + graph.degree[edge[1]]
+    edge_list.sort(reverse=True, key=f)
+    return edge_list[:limit]
+
 """Returns the sorted list of edges according to their betweenness centrality in a graph."""
 def order_betweenness(edge_list:list, graph, sample_percentage = 0.1, limit:int=None, show_time = True, strong_mapping = False):
     start = t.time()
@@ -203,6 +212,84 @@ def get_cuts_cluster(clusters_filename:str, cuts_filename:str, cluster_id:int=0)
 
 if __name__ == "__main__":
     pass
+
+    # # # Static degree attack 
+    # graph_name = "graph_paris_clean"
+    # city_name = "paris"
+    # result_dict = read_json(path("attack_degree.json"))
+    # G = nx.read_gml(path(graph_name))
+    # m = len(G.edges)
+    # attack = order_degree(edge_list=list(G.edges()), graph=G)
+    # write_file(attack, path(f"attack_staticdegree_{city_name}"))
+    # result_dict["content"][city_name]["static"]["cost"], result_dict["content"][city_name]["static"]["LCC metric"] = LCC_metric_underattack(graph_filename=graph_name,
+    #                                             attack_filename=f"attack_staticdegree_{city_name}",
+    #                                             )
+    # _, result_dict["content"][city_name]["static"]["efficiency"] = efficiency_underattack(graph_filename=graph_name,
+    #                                         attack_filename=f"attack_staticdegree_{city_name}",
+    #                                         limit = 150)
+    # write_json(result_dict, path("attack_degree.json"))
+
+    # # Dynamic degree attack 
+    # graph_name = "graph_paris_clean"
+    # city_name = "paris"
+    # result_dict = read_json(path("attack_degree.json"))["content"]
+    # # G = nx.read_gml(path(graph_name))
+    # # m = len(G.edges)
+    # # attack = []
+    # # for i in range(m):
+    # #     if (i % 100) == 0:
+    # #         print(i)
+    # #     edge = order_degree(edge_list=list(G.edges()), graph=G, limit=1)[0]
+    # #     attack.append(edge)
+    # #     G.remove_edge(edge[0], edge[1])
+    # # write_file(attack, path(f"attack_dynamicdegree_{city_name}"))
+    # result_dict[city_name]["dynamic"]["cost"], result_dict[city_name]["dynamic"]["LCC metric"] = LCC_metric_underattack(graph_filename=graph_name,
+    #                                             attack_filename=f"attack_dynamicdegree_{city_name}",
+    #                                             )
+    # _, result_dict[city_name]["dynamic"]["efficiency"] = efficiency_underattack(graph_filename=graph_name,
+    #                                         attack_filename=f"attack_dynamicdegree_{city_name}",
+    #                                         limit = 150)
+    # write_json(result_dict, path("attack_degree.json"))
+
+    # # Dynamic CFA
+    # n = 200
+    # k = 2
+    # imb = 0.1
+    # cut_number = 100
+    # G = nx.read_gml(path("graph_paris_clean"))
+    # nx.write_gml(G, path("temp_graph_dyncfa"))
+    # parse_graph_to_kahip("temp_graph_dyncfa", "temp_kahip_dyncfa")
+    # attack = []
+    # for i in range(n):
+    #     print(f"dyn CFA : {i}/{n}")
+    #     G = nx.read_gml(path("temp_graph_dyncfa"))
+    #     make_cuts(graph_name="temp_graph_dyncfa", kahip_graph="temp_kahip_dyncfa",
+    #               cut_number=cut_number, k=k, imbalance=imb,
+    #               alt_result_filename="temp_cuts_dyncfa")
+    #     cuts = read_file(path("temp_cuts_dyncfa"))
+    #     try:
+    #         attack.append(order_cfa(edge_list=G.edges, cut_list=cuts)[0])
+    #         G.remove_edge(attack[-1][0], attack[-1][1])
+    #         nx.write_gml(G, path("temp_graph_dyncfa"))
+    #         parse_graph_to_kahip("temp_graph_dyncfa", "temp_kahip_dyncfa")
+    #     except:
+    #         n = i
+    #         break
+    # write_file(attack, path(f"attack_cfa_dyn{n}_cuts{cut_number}_k{k}_imb{imb}_paris"))
+    # print("Computing robustness metrics.")
+    # cfa_dict = read_json(path("attack_cfa.json"))
+    # cfa_dict["content"]["paris"]["dynamic"][f"k={k}, imbalance={imb}"] = {}
+    # cfa_dict["content"]["paris"]["dynamic"][f"k={k}, imbalance={imb}"]["cost"], cfa_dict["content"]["paris"]["dynamic"][f"k={k}, imbalance={imb}"]["LCC metric"] = LCC_metric_underattack(graph_filename='graph_paris_clean',
+    #                                             attack_filename=f"attack_cfa_dyn{n}_cuts{cut_number}_k{k}_imb{imb}_paris",
+    #                                             )
+    # _, cfa_dict["content"]["paris"]["dynamic"][f"k={k}, imbalance={imb}"]["efficiency"] = efficiency_underattack(graph_filename='graph_paris_clean',
+    #                                             attack_filename=f"attack_cfa_dyn{n}_cuts{cut_number}_k{k}_imb{imb}_paris",
+    #                                             limit = min(n, 150))
+    # write_json(cfa_dict, path("attack_cfa.json"))
+    # os.remove(path("temp_graph_dyncfa"))
+    # os.remove(path("temp_kahip_dyncfa"))
+    # os.remove(path("temp_cuts_dyncfa"))
+
     # # Plot of CCFA and CFA on the Paris graph
     # l = 30000
     # cluster_list = read_file(path(f"clusters_birch_C_md{l}_clean0.03"))
@@ -216,81 +303,173 @@ if __name__ == "__main__":
     #              attacks=attacks,
     #              labels=labels)
 
-    # Dynamic CA with betweenness ordering
-    tag = "BC2"
-    graph_name = "graph_paris_clean"
-    k = 2
-    imb = 0.03
-    dyn_cut_number = 1000
-    ca_dict = read_json(path("attack_ca_new.json"))
-    attack = read_file(path(f"attack_ca_bc_bestcut1000_k{k}_im{imb}"))
-    first_lim = len(attack)
-    G = nx.read_gml(path(graph_name))
-    # norm = graph_efficiency(G)
-    for edge in attack:
-        G.remove_edge(edge[0], edge[1])
-    nx.write_gml(G,path("temp_brokengraph"))
-    CCs = list(nx.connected_components(G))
-    CCs.sort(key = len, reverse = True)
-    LCC = CCs[0]
-    newG = build_graph_from_component(whole_graph=G, component=LCC, original_weight_dict=nx.get_edge_attributes(G, "weight"), original_length_dict=nx.get_edge_attributes(G, "length"))
-    truelabels_dict = nx.get_node_attributes(newG, "former")
-    nx.write_gml(newG, path("temp_graph_dynamicca"))
-    parse_graph_to_kahip("temp_graph_dynamicca", "temp_kahip_dynamicca")
-    make_cuts("temp_graph_dynamicca", "temp_kahip_dynamicca", dyn_cut_number, k, imb, alt_result_filename="temp_cuts_dynamicca")
-    cuts = read_file(path("temp_cuts_dynamicca"))
-    best_cut = find_best_cuts("temp_graph_dynamicca", cuts)[0]
-    attack = []
-    temp_best_cut = best_cut
-    for i in range(len(best_cut)-1):
-        print(f"CA ordered with betw: {i}/{len(best_cut)}")
-        edge = order_betweenness(edge_list=temp_best_cut, graph=newG, sample_percentage=0.1, limit=1, strong_mapping = False)[0]
-        attack.append(edge)
-        newG.remove_edge(str(edge[0]), str(edge[1]))
-        temp_best_cut.remove(edge)
-    attack.append(temp_best_cut[0])
-    true_attack = []
-    for edge in attack:
-        true_attack.append((truelabels_dict[int(edge[0])], truelabels_dict[int(edge[1])]))
-        print(true_attack[-1] in G.edges)
-    write_file(true_attack, path(f"temp_attack_dynamicca"))
-    cost, eff = efficiency_underattack(graph_filename="temp_brokengraph",
-                                            attack_filename=f"temp_attack_dynamicca")
-    true_cost = ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["cost"] + [cost[i] + ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["cost"][-1] for i in range(1, len(cost))]
-    true_eff = ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["efficiency"] + [eff[i] * ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["efficiency"][-1] for i in range(1, len(eff))]
-    ca_dict["content"]["paris"]["dynamic"]["BC2"] = {} # A suppr
-    ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"] = {}
-    ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["efficiency"] = true_cost, true_eff
-    write_json(ca_dict, path("attack_ca_new.json"))
-    bet_dict = read_json(path(("attack_betweenness.json")))["content"]["dynamic"]
-    plt.figure()
-    plt.plot(bet_dict["cost"][:151], bet_dict["efficiency"], label=f'BCA')
-    for key in ca_dict["content"]["paris"]["dynamic"]["random2"].keys():
-        key_ = key.split(", ")
-        k, imb = key_[0].split("=")[1], key_[1].split("=")[1]
-        plt.plot(ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'dyn-random2 CA: k={k}, imbalance={imb}')
-    for key in ca_dict["content"]["paris"]["dynamic"]["BC2"].keys():
-        key_ = key.split(", ")
-        k, imb = key_[0].split("=")[1], key_[1].split("=")[1]
-        plt.plot(ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'dyn-BC2 CA: k={k}, imbalance={imb}')
-    plt.xlabel('cost')
-    plt.ylabel('efficiency')
-    plt.legend()
-    plt.tight_layout()
-    plt.savefig(path(f"attack_ca_dyn_randomvsbc_random_bestcut1000_efficiency.png"), dpi = 300)
-    plt.close()
-    os.remove(path("temp_graph_dynamicca"))
-    os.remove(path("temp_kahip_dynamicca"))
-    os.remove(path("temp_cuts_dynamicca"))
-    os.remove(path("temp_attack_dynamicca"))
-    os.remove(path("temp_brokengraph"))
-
-    # Dynamic CA with random ordering
+    # # Dynamic CA with betweenness ordering
+    # tag = "BC2"
     # graph_name = "graph_paris_clean"
     # k = 2
     # imb = 0.1
     # dyn_cut_number = 1000
     # ca_dict = read_json(path("attack_ca_new.json"))
+    # attack = read_file(path(f"attack_ca_bc_bestcut1000_k{k}_im{imb}"))
+    # first_lim = len(attack)
+    # G = nx.read_gml(path(graph_name))
+    # norm = graph_efficiency(G)
+    # for edge in attack:
+    #     G.remove_edge(edge[0], edge[1])
+    # nx.write_gml(G,path("temp_brokengraph"))
+    # CCs = list(nx.connected_components(G))
+    # CCs.sort(key = len, reverse = True)
+    # LCC = CCs[0]
+    # newG = build_graph_from_component(whole_graph=G, component=LCC, original_weight_dict=nx.get_edge_attributes(G, "weight"), original_length_dict=nx.get_edge_attributes(G, "length"))
+    # truelabels_dict = nx.get_node_attributes(newG, "former")
+    # nx.write_gml(newG, path("temp_graph_dynamicca"))
+    # parse_graph_to_kahip("temp_graph_dynamicca", "temp_kahip_dynamicca")
+    # make_cuts("temp_graph_dynamicca", "temp_kahip_dynamicca", dyn_cut_number, k, imb, alt_result_filename="temp_cuts_dynamicca")
+    # cuts = read_file(path("temp_cuts_dynamicca"))
+    # best_cut = find_best_cuts("temp_graph_dynamicca", cuts)[0]
+    # attack = []
+    # temp_best_cut = best_cut
+    # for i in range(len(best_cut)-1):
+    #     print(f"CA ordered with betw: {i}/{len(best_cut)}")
+    #     edge = order_betweenness(edge_list=temp_best_cut, graph=newG, sample_percentage=0.1, limit=1, strong_mapping = False)[0]
+    #     attack.append(edge)
+    #     newG.remove_edge(int(edge[0]), int(edge[1]))
+    #     temp_best_cut.remove(edge)
+    # attack.append(temp_best_cut[0])
+    # true_attack = []
+    # for edge in attack:
+    #     true_attack.append((truelabels_dict[int(edge[0])], truelabels_dict[int(edge[1])]))
+    #     print(true_attack[-1] in G.edges)
+    # write_file(true_attack, path(f"temp_attack_dynamicca"))
+    # cost, eff = efficiency_underattack(graph_filename="temp_brokengraph",
+    #                                         attack_filename=f"temp_attack_dynamicca")
+    # true_cost = ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["cost"] + [cost[i] + ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["cost"][-1] for i in range(1, len(cost))]
+    # true_eff = ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["efficiency"] + [eff[i] * ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["efficiency"][-1] for i in range(1, len(eff))]
+    # ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"] = {}
+    # ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["efficiency"] = true_cost, true_eff
+    # write_json(ca_dict, path("attack_ca_new.json"))
+    # bet_dict = read_json(path(("attack_betweenness.json")))["content"]["dynamic"]
+    # plt.figure()
+    # plt.plot(bet_dict["cost"][:151], bet_dict["efficiency"], label=f'BCA')
+    # for key in ca_dict["content"]["paris"]["dynamic"]["random2"].keys():
+    #     key_ = key.split(", ")
+    #     k, imb = key_[0].split("=")[1], key_[1].split("=")[1]
+    #     plt.plot(ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'dyn-random2 CA: k={k}, imbalance={imb}')
+    # for key in ca_dict["content"]["paris"]["dynamic"]["BC2"].keys():
+    #     key_ = key.split(", ")
+    #     k, imb = key_[0].split("=")[1], key_[1].split("=")[1]
+    #     plt.plot(ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["BC2"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'dyn-BC2 CA: k={k}, imbalance={imb}')
+    # plt.xlabel('cost')
+    # plt.ylabel('efficiency')
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.savefig(path(f"attack_ca_dyn_randomvsbc_random_bestcut1000_efficiency.png"), dpi = 300)
+    # plt.close()
+    # os.remove(path("temp_graph_dynamicca"))
+    # os.remove(path("temp_kahip_dynamicca"))
+    # os.remove(path("temp_cuts_dynamicca"))
+    # os.remove(path("temp_attack_dynamicca"))
+    # os.remove(path("temp_brokengraph"))
+
+    
+    # n-iterated CA with BC ordering
+    graph_name = "graph_paris_clean"
+    k = 2
+    imb = 0.03
+    iterations = 3
+    dyn_cut_number = 1000
+    ca_dict = read_json(path("attack_ca.json"))
+    attack = read_file(path(f"attack_ca_bc_bestcut1000_k{k}_im{imb}"))
+    G_true = nx.read_gml(path(graph_name))
+    for edge in attack:
+        G_true.remove_edge(edge[0], edge[1])
+    former_dict = {}
+    for node in G_true.nodes:
+        former_dict[node] = {"former":node}
+    nx.set_node_attributes(G_true, former_dict)
+    nx.write_gml(G_true,path(f"graph_paris_bestcut1000_k{k}_im{imb}"))
+    G = copy.deepcopy(G_true)
+    Gs = [G]
+    for i in range(1, iterations):
+        newGGs = []
+        for G in Gs: 
+            CCs = list(nx.connected_components(G))
+            CCs.sort(key = len, reverse = True)
+            LCCs = CCs[:2]
+            for LCC in LCCs:
+                G_LCC = build_graph_from_component(whole_graph=G_true, component=LCC, original_weight_dict=nx.get_edge_attributes(G, "weight"), original_length_dict=nx.get_edge_attributes(G, "length"), super_former_dict=nx.get_node_attributes(G_true, "former"))
+                nx.write_gml(G_LCC, path(f"graph_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}"))
+                parse_graph_to_kahip(f"graph_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}", f"kahip_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}")
+                make_cuts(f"graph_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}", f"kahip_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}", dyn_cut_number, k, imb, alt_result_filename=f"cuts{dyn_cut_number}_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}")
+                cuts = read_file(path(f"cuts{dyn_cut_number}_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}"))
+                best_cut = find_best_cuts(f"graph_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}", cuts)[0]
+                temp_best_cut = copy.deepcopy(best_cut)
+                truelabels_dict = nx.get_node_attributes(G_LCC, "former")
+                for j in range(len(best_cut)):
+                    print(f"betw: {j}/{len(best_cut)}")
+                    edge = order_betweenness(temp_best_cut, G_LCC, limit=1)[0]
+                    G_LCC.remove_edge(int(edge[0]), int(edge[1]))
+                    attack.append((truelabels_dict[int(edge[0])], truelabels_dict[int(edge[1])]))
+                    temp_best_cut.remove(edge)
+                write_file(attack, path(f"attack_bc_bestcut{dyn_cut_number}_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}"))
+                newGGs.append(G_LCC)
+        Gs = copy.deepcopy(newGGs)
+    ca_dict["content"]["paris"]["dynamic"]["BC3"] = {}
+    ca_dict["content"]["paris"]["dynamic"]["BC3"][f"k={k}, imbalance={imb}"] = {}
+    ca_dict["content"]["paris"]["dynamic"]["BC3"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["BC3"][f"k={k}, imbalance={imb}"]["efficiency"] = efficiency_underattack(graph_filename=graph_name, attack_filename="attack_bc_bestcut1000_k2_im0.03_it3_G1_LCC1")
+    write_json(ca_dict, path("attack_ca.json"))
+
+    # # n-iterated CA with random ordering
+    # graph_name = "graph_paris_clean"
+    # k = 2
+    # imb = 0.03
+    # iterations = 3
+    # dyn_cut_number = 1000
+    # ca_dict = read_json(path("attack_ca.json"))
+    # # attack = read_file(path(f"attack_ca_random_bestcut1000_k{k}_im{imb}"))
+    # # G_true = nx.read_gml(path(graph_name))
+    # # for edge in attack:
+    # #     G_true.remove_edge(edge[0], edge[1])
+    # # former_dict = {}
+    # # for node in G_true.nodes:
+    # #     former_dict[node] = {"former":node}
+    # # nx.set_node_attributes(G_true, former_dict)
+    # # nx.write_gml(G_true,path(f"graph_paris_bestcut1000_k{k}_im{imb}"))
+    # # G = copy.deepcopy(G_true)
+    # # Gs = [G]
+    # # for i in range(1, iterations):
+    # #     newGGs = []
+    # #     for G in Gs: 
+    # #         CCs = list(nx.connected_components(G))
+    # #         CCs.sort(key = len, reverse = True)
+    # #         LCCs = CCs[:2**i]
+    # #         for LCC in LCCs:
+    # #             G_LCC = build_graph_from_component(whole_graph=G_true, component=LCC, original_weight_dict=nx.get_edge_attributes(G, "weight"), original_length_dict=nx.get_edge_attributes(G, "length"), super_former_dict=nx.get_node_attributes(G_true, "former"))
+    # #             nx.write_gml(G_LCC, path(f"graph_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}"))
+    # #             parse_graph_to_kahip(f"graph_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}", f"kahip_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}")
+    # #             make_cuts(f"graph_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}", f"kahip_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}", dyn_cut_number, k, imb, alt_result_filename=f"cuts{dyn_cut_number}_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}")
+    # #             cuts = read_file(path(f"cuts{dyn_cut_number}_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}"))
+    # #             best_cut = find_best_cuts(f"graph_paris_bestcut1000_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}", cuts)[0]
+    # #             random.shuffle(best_cut)
+    # #             truelabels_dict = nx.get_node_attributes(G_LCC, "former")
+    # #             for edge in best_cut:
+    # #                 G_LCC.remove_edge(int(edge[0]), int(edge[1]))
+    # #                 attack.append((truelabels_dict[int(edge[0])], truelabels_dict[int(edge[1])]))
+    # #             write_file(attack, path(f"attack_random_bestcut{dyn_cut_number}_k{k}_im{imb}_it{i+1}_G{Gs.index(G)}_LCC{LCCs.index(LCC)}"))
+    # #             newGGs.append(G_LCC)
+    # #     Gs = copy.deepcopy(newGGs)
+    # ca_dict["content"]["paris"]["dynamic"]["random3"] = {}
+    # ca_dict["content"]["paris"]["dynamic"]["random3"][f"k={k}, imbalance={imb}"] = {}
+    # ca_dict["content"]["paris"]["dynamic"]["random3"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["random3"][f"k={k}, imbalance={imb}"]["efficiency"] = efficiency_underattack(graph_filename=graph_name, attack_filename="attack_random_bestcut1000_k2_im0.03_it3_G1_LCC1")
+    # write_json(ca_dict, path("attack_ca.json"))
+            
+
+    # # 2-iterated CA with random ordering
+    # graph_name = "graph_paris_clean"
+    # k = 2
+    # imb = 0.03
+    # dyn_cut_number = 1000
+    # ca_dict = read_json(path("attack_ca.json"))
     # attack = read_file(path(f"attack_ca_random_bestcut1000_k{k}_im{imb}"))
     # first_lim = len(attack)
     # G = nx.read_gml(path(graph_name))
@@ -314,36 +493,43 @@ if __name__ == "__main__":
     #     temp_attack.append((truelabels_dict[int(edge[0])], truelabels_dict[int(edge[1])]))
     #     print(temp_attack[-1] in G.edges)
     # write_file(temp_attack, path(f"temp_attack_dynamicca"))
-    
     # cost, eff = efficiency_underattack(graph_filename="temp_brokengraph",
     #                                         attack_filename=f"temp_attack_dynamicca")
     # true_cost = ca_dict["content"]["paris"]["static"]["random"][f"k={k}, imbalance={imb}"]["cost"] + [cost[i] + ca_dict["content"]["paris"]["static"]["random"][f"k={k}, imbalance={imb}"]["cost"][-1] for i in range(1, len(cost))]
     # true_eff = ca_dict["content"]["paris"]["static"]["random"][f"k={k}, imbalance={imb}"]["efficiency"] + [eff[i] * ca_dict["content"]["paris"]["static"]["random"][f"k={k}, imbalance={imb}"]["efficiency"][-1] for i in range(1, len(eff))]
     # ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"] = {}
     # ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["efficiency"] = true_cost, true_eff
-    # write_json(ca_dict, path("attack_ca_new.json"))
-    # bet_dict = read_json(path(("attack_betweenness.json")))["content"]["dynamic"]
-    # plt.figure()
-    # plt.plot(bet_dict["cost"][:151], bet_dict["efficiency"], label=f'BCA')
-    # for key in ca_dict["content"]["paris"]["static"]["random"].keys():
-    #     key_ = key.split(", ")
-    #     k, imb = key_[0].split("=")[1], key_[1].split("=")[1]
-    #     plt.plot(ca_dict["content"]["paris"]["static"]["random"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["static"]["random"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'stat-random CA: k={k}, imbalance={imb}')
-    # for key in ca_dict["content"]["paris"]["dynamic"]["random2"].keys():
-    #     key_ = key.split(", ")
-    #     k, imb = key_[0].split("=")[1], key_[1].split("=")[1]
-    #     plt.plot(ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["dynamic"]["random2"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'dyn-random2 CA: k={k}, imbalance={imb}')
-    # plt.xlabel('cost')
-    # plt.ylabel('efficiency')
-    # plt.legend()
-    # plt.tight_layout()
-    # plt.savefig(path(f"attack_ca_statvsdyn_random_bestcut1000_k{k}_im{imb}_efficiency.png"), dpi = 300)
-    # plt.close()
+    # write_json(ca_dict, path("attack_ca.json"))
     # os.remove(path("temp_graph_dynamicca"))
     # os.remove(path("temp_kahip_dynamicca"))
     # os.remove(path("temp_cuts_dynamicca"))
     # os.remove(path("temp_attack_dynamicca"))
     # os.remove(path("temp_brokengraph"))
+
+    # # CA with cut-frequency ordering
+    # ca_dict = read_json(path("attack_ca.json"))
+    # k = 2
+    # imb = 0.1
+    # cuts = read_file(path(f"cuts1000_k{k}_imb{imb}_mode2_clean"))
+    # best_cut = find_best_cuts("graph_paris_clean", cuts)[0]
+    # attack = order_cfa(best_cut, cuts)
+    # write_file(attack, path(f"attack_ca_cf_bestcut1000_k{k}_im{imb}"))
+    # ca_dict["content"]["paris"]["static"]["CF"][f"k={k}, imbalance={imb}"] = {}
+    # ca_dict["content"]["paris"]["static"]["CF"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["static"]["CF"][f"k={k}, imbalance={imb}"]["efficiency"] = efficiency_underattack(graph_filename='graph_paris_clean',
+    #                                         attack_filename=f"attack_ca_cf_bestcut1000_k{k}_im{imb}")
+    # write_json(ca_dict, path("attack_ca.json"))
+    # bet_dict = read_json(path(("attack_betweenness.json")))["content"]["dynamic"]
+    # plt.figure()
+    # plt.plot(bet_dict["cost"][:151], bet_dict["efficiency"], label=f'BCA')
+    # plt.plot(ca_dict["content"]["paris"]["static"]["CF"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["static"]["CF"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'stat-CF CA: k={k}, imbalance={imb}')
+    # plt.plot(ca_dict["content"]["paris"]["static"]["random"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["static"]["random"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'stat-random CA: k={k}, imbalance={imb}')
+    # plt.plot(ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["cost"], ca_dict["content"]["paris"]["static"]["BC"][f"k={k}, imbalance={imb}"]["efficiency"], label=f'stat-BC CA: k={k}, imbalance={imb}')
+    # plt.xlabel('cost')
+    # plt.ylabel('efficiency')
+    # plt.legend()
+    # plt.tight_layout()
+    # plt.savefig(path(f"attack_ca_stat_bestcut1000_k{k}_imb{imb}_efficiency.png"), dpi = 300)
+    # plt.close()
 
     # # CA with max-efficiency ordering
     # ca_dict = read_json(path("attack_ca.json"))
@@ -468,17 +654,17 @@ if __name__ == "__main__":
     #                                         limit = 150)
     # write_file(result_dict, path("attack_staticbetweenness_resultdict"))
 
-    # # Dynamic betweenness attack and metrics
+    # Dynamic betweenness attack and metrics
     # graph_name = "graph_clean_shanghai"
     # city_name = "shanghai"
-    # result_dict = read_json(path("attack_betweenness_new.json"))
-    # G = nx.read_gml(path(graph_name))
-    # attack = []
-    # for i in range(200):
-    #     edge = order_betweenness(edge_list=list(G.edges()), graph=G, sample_percentage=0.1, limit=1)[0]
-    #     attack.append(edge)
-    #     G.remove_edge(edge[0], edge[1])
-    # write_file(attack, path(f"attack_dynamicbetweenness_{city_name}"))
+    # result_dict = read_json(path("attack_betweenness.json"))["content"]
+    # # G = nx.read_gml(path(graph_name))
+    # # attack = []
+    # # for i in range(200):
+    # #     edge = order_betweenness(edge_list=list(G.edges()), graph=G, sample_percentage=0.1, limit=1)[0]
+    # #     attack.append(edge)
+    # #     G.remove_edge(edge[0], edge[1])
+    # # write_file(attack, path(f"attack_dynamicbetweenness_{city_name}"))
     # result_dict[city_name]["dynamic"] = {}
     # result_dict[city_name]["dynamic"]["cost"], result_dict[city_name]["dynamic"]["LCC metric"] = LCC_metric_underattack(graph_filename=graph_name,
     #                                             attack_filename=f"attack_dynamicbetweenness_{city_name}",
@@ -486,7 +672,9 @@ if __name__ == "__main__":
     # _, result_dict[city_name]["dynamic"]["efficiency"] = efficiency_underattack(graph_filename=graph_name,
     #                                         attack_filename=f"attack_dynamicbetweenness_{city_name}",
     #                                         limit = 150)
-    # write_json(result_dict, path("attack_betweenness_new.json"))
+    # write_json(result_dict, path("attack_betweenness.json"))
+
+   
 
     # # CFA attack for imbalance range
     # G = nx.read_gml(path('graph_paris_clean'))
